@@ -11,9 +11,10 @@
     "module": "ESNext",
     "skipLibCheck": true,
 
+    "allowJs": false,
+
     /* Bundler mode */
     "moduleResolution": "Node",
-    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "moduleDetection": "force",
     "jsx": "react-jsx",
