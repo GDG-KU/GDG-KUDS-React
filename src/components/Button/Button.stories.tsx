@@ -13,13 +13,46 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Primary: Story = {
-  args: { className: 'asdf' },
+  args: {
+    colorType: 'primary',
+    size: 'large',
+    shape: 'round',
+    disabled: false,
+  },
 };
 
-export const Secondary: Story = {
-  args: { className: 'zxcv' },
+export const Blue: Story = {
+  args: {
+    colorType: 'blue',
+    size: 'large',
+    shape: 'round',
+    disabled: false,
+  },
 };
 
-export const Test: Story = {
-  args: { className: 'zxcv' },
+export const Green: Story = {
+  args: {
+    colorType: 'green',
+    size: 'medium',
+    shape: 'round',
+    disabled: false,
+  },
+};
+
+export const Yellow: Story = {
+  args: {
+    colorType: 'yellow',
+    size: 'large',
+    shape: 'round',
+    disabled: false,
+  },
+};
+
+export const Red: Story = {
+  args: {
+    colorType: 'red',
+    size: 'medium',
+    shape: 'round',
+    disabled: false,
+  },
 };
