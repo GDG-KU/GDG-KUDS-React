@@ -1,19 +1,14 @@
 import { createContext } from 'react';
 
-type ContextValue = {
-  prefix: string;
-  getPrefixClassName: () => string;
+export type Config = {
+  getPrefixClassName: (suffix?: string, customPrefixCls?: string) => string;
 };
 
-export const DEFAULT_PREFIX_CLASSNAME = 'gdg-kuds';
+const DEFAULT_PREFIX_CLASSNAME = 'gdg-kuds';
 
-export const ConfigContext = createContext<ContextValue>({
-  prefix: DEFAULT_PREFIX_CLASSNAME,
-  getPrefixClassName: (suffix?: string) => {
-    if (suffix) {
-      return `${DEFAULT_PREFIX_CLASSNAME}-${suffix}`;
-    }
-
-    return DEFAULT_PREFIX_CLASSNAME;
+export const ConfigContext = createContext<Config>({
+  getPrefixClassName: (suffix, customPrefixCls) => {
+    if (customPrefixCls) return customPrefixCls;
+    return suffix ? `${DEFAULT_PREFIX_CLASSNAME}-${suffix}` : DEFAULT_PREFIX_CLASSNAME;
   },
 });

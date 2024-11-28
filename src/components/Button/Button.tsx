@@ -2,9 +2,9 @@
 
 import { css } from '@emotion/react';
 import { generateClasses } from '../../utils/classNames';
-import { GLOBAL_PREFIX } from '../../constants/prefix';
-import { forwardRef } from 'react';
+import { forwardRef, useContext } from 'react';
 import { Colors } from '../../constants/colors';
+import { ConfigContext } from '../ConfigProvider/context';
 
 type ColorType = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 type Size = 'medium' | 'large';
@@ -35,8 +35,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     children,
     ...buttonProps
   } = props;
-  const BUTTON_PREFIX = `${GLOBAL_PREFIX}-btn`;
-  const generateButtonCls = generateClasses(BUTTON_PREFIX);
+  const context = useContext(ConfigContext);
+
+  const globalPrefix = context.getPrefixClassName('btn');
+  const generateButtonCls = generateClasses(globalPrefix);
 
   return (
     <button
