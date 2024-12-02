@@ -48,7 +48,7 @@ export const generateClasses =
       .filter((cls) => !!cls)
       .join(' ');
 
-    if (cls) {
+    if (cls.length > 0) {
       const classes = cls.filter((cls) => !!cls).join(' ');
       return `${mergedClasses} ${classes}`;
     }
