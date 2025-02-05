@@ -11,11 +11,11 @@ const meta: Meta<typeof Select> = {
     colorType: 'primary',
     placeholder: 'Select',
     options: [
-      { value: 'product-manager', label: 'Product Manager' },
-      { value: 'backend-designer', label: 'Backend Designer' },
-      { value: 'frontend-designer', label: 'Frontend Designer' },
-      { value: 'ui-designer', label: 'UI Designer' },
-      { value: 'ux-designer', label: 'UX Designer' },
+      { value: 1, label: 'Product Manager' },
+      { value: 2, label: 'Backend Designer' },
+      { value: 3, label: 'Frontend Designer' },
+      { value: 4, label: 'UI Designer' },
+      { value: 5, label: 'UX Designer' },
     ],
   },
   argTypes: {
