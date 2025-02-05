@@ -41,6 +41,10 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const select: Story = {
+  args: {
+    colorType: 'red',
+  },
+
   render: (args) => {
     return (
       <ConfigProvider>

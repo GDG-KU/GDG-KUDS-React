@@ -20,7 +20,7 @@ export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElemen
 const prefixCls = `${PREFIX_CLS}-select`;
 
 const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
-  const { colorType = 'primary', className, width = 280, ...selectProps } = props;
+  const { colorType, className, width = 280, ...selectProps } = props;
   const { disabled, options, value, placeholder, onChange = () => {} } = selectProps;
 
   const selectCls = clsx(
@@ -33,6 +33,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
   );
   const [isOpen, setIsOpen] = useState(false);
   const [selectedValue, setSelectedValue] = useState(value || '');
+  const [currentColorType, setCurrentColorType] = useState<ColorType>(colorType || 'primary');
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
@@ -40,6 +41,8 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
 
   const handleSelect = (value: number) => {
     setSelectedValue(value);
+    setTimeout(() => setCurrentColorType('primary'), 200);
+
     const event = {
       target: { value } as unknown as HTMLSelectElement,
     } as React.ChangeEvent<HTMLSelectElement>;
@@ -51,7 +54,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
   const isSelected = !!selectedValue;
 
   return (
-    <div css={SelectContainerStyles(width, isSelected, isOpen)} className={selectCls}>
+    <div css={SelectContainerStyles(width, isSelected, isOpen, currentColorType)} className={selectCls}>
       <button ref={ref} onClick={handleToggle} className={clsx(`${prefixCls}-button`)}>
         <span className={clsx(`${prefixCls}-placeholder`)}>{selectedOption ? selectedOption.label : placeholder}</span>
         <IconArrow className={clsx(`${prefixCls}-icon`)} />
@@ -74,7 +77,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
 
 export default Select;
 
-const SelectStyles = (isSelected: boolean) =>
+const SelectStyles = (isSelected: boolean, colorType: ColorType) =>
   css({
     color: Colors.primary[500],
 
@@ -89,7 +92,7 @@ const SelectStyles = (isSelected: boolean) =>
     border: '1px solid',
     borderRadius: 8,
 
-    borderColor: isSelected ? Colors.primary[800] : Colors.primary[500],
+    borderColor: isSelected ? Colors[colorType][500] : Colors.primary[500],
     backgroundColor: Colors.primary[100],
 
     [`> .${prefixCls}-placeholder`]: {
@@ -108,13 +111,13 @@ const SelectStyles = (isSelected: boolean) =>
     },
 
     '&:hover': {
-      borderColor: Colors.primary[800],
+      borderColor: colorType === 'primary' ? Colors.primary[800] : Colors[colorType][500],
       color: Colors.primary[600],
     },
   });
 
-const SelectBoxStyles = (isOpen: boolean) =>
-  css({
+const SelectBoxStyles = (isOpen: boolean, colorType: ColorType) => {
+  return css({
     position: 'absolute', // 버튼 아래에 위치
     top: '100%', // 버튼 바로 아래에 배치
     left: 0,
@@ -133,38 +136,40 @@ const SelectBoxStyles = (isOpen: boolean) =>
     padding: 0,
     margin: 0,
 
-    [`> li.${prefixCls}-selectitem`]: SelectItemsStyles,
+    [`> li.${prefixCls}-selectitem`]: SelectItemsStyles(colorType),
   });
+};
 
-const SelectItemsStyles = css({
-  padding: '11px 16px',
-  boxSizing: 'border-box',
+const SelectItemsStyles = (colorType: ColorType) => {
+  return css({
+    padding: '11px 16px',
+    boxSizing: 'border-box',
 
-  fontSize: 16,
-  color: Colors.primary[600],
-  backgroundColor: 'transparent',
+    fontSize: 16,
+    color: Colors.primary[600],
+    backgroundColor: 'transparent',
 
-  cursor: 'pointer',
-  transition: 'background-color 0.2s ease, color 0.2s ease',
-  listStyle: 'none',
+    cursor: 'pointer',
+    transition: 'background-color 0.2s ease, color 0.2s ease',
+    listStyle: 'none',
 
-  '&:hover': {
-    backgroundColor: Colors.primary[200],
-    color: Colors.primary[800],
-  },
-  [`&.${prefixCls}-selected`]: {
-    color: Colors.primary[800],
-    backgroundColor: Colors.primary[200],
-  },
-});
-
-const SelectContainerStyles = (width: number | string, isSelected: boolean, isOpen: boolean) => {
+    '&:hover': {
+      backgroundColor: colorType === 'primary' ? Colors.primary[200] : Colors[colorType][100],
+      color: Colors.primary[800],
+    },
+    [`&.${prefixCls}-selected`]: {
+      color: Colors.primary[800],
+      backgroundColor: Colors.primary[200],
+    },
+  });
+};
+const SelectContainerStyles = (width: number | string, isSelected: boolean, isOpen: boolean, colorType: ColorType) => {
   return css({
     position: 'relative',
     width: `${width}px`,
     minWidth: 280,
-    [`> button.${prefixCls}-button`]: SelectStyles(isSelected),
+    [`> button.${prefixCls}-button`]: SelectStyles(isSelected, colorType),
 
-    [`> ul.${prefixCls}-selectbox`]: SelectBoxStyles(isOpen),
+    [`> ul.${prefixCls}-selectbox`]: SelectBoxStyles(isOpen, colorType),
   });
 };
