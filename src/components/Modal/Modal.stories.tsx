@@ -4,7 +4,8 @@ import { Button } from '../Button';
 import { Checkbox } from '../Checkbox';
 import { Input } from '../Input';
 import { ConfigProvider } from '../ConfigProvider';
-import { useRef } from 'react';
+import { useState } from 'react';
+import React from 'react';
 
 const meta: Meta<typeof Modal> = {
   title: 'Modal',
@@ -12,40 +13,39 @@ const meta: Meta<typeof Modal> = {
   tags: ['autodocs'],
   args: {},
   argTypes: {
-    modalType: {
-      control: {
-        type: 'radio',
-        options: ['primary', 'icon_L'],
-      },
+    isOpen: {
+      control: false,
     },
     icon: {
+      control: false,
+    },
+    icon_size: {
       control: false,
     },
     header: {
       control: 'text',
     },
+    content: {
+      action: 'text',
+    },
     footer: {
       control: false,
     },
-    onClose: {
-      action: 'close',
-    },
   },
   render: function Render(args) {
-    const modalRef = useRef(null);
-
+    const [modalOpen, setModalOpen] = useState(false);
     return (
       <ConfigProvider theme={{ mode: 'light' }}>
         <div>
-          <Button onClick={() => modalRef.current.showModal()}>Open Modal</Button>
+          <Button onClick={() => setModalOpen(true)}>Open Modal</Button>
           <Modal
-            ref={modalRef}
             {...args}
+            isOpen={modalOpen}
             footer={[
-              <Button colorType='primary' size='md' onClick={() => modalRef.current.close()} key='Reject'>
+              <Button colorType='red' size='md' onClick={() => setModalOpen(false)} key='Reject'>
                 Reject
               </Button>,
-              <Button colorType='primary' size='md' onClick={() => modalRef.current.close()} key='Accept'>
+              <Button colorType='primary' size='md' onClick={() => setModalOpen(false)} key='Accept'>
                 Accept
               </Button>,
             ]}
@@ -61,7 +61,6 @@ type Story = StoryObj<typeof meta>;
 
 export const primary: Story = {
   args: {
-    modalType: 'primary',
     header: 'Do you want to accept?',
     content: 'It cannot be reset for 30 days after the change.',
   },
@@ -69,33 +68,27 @@ export const primary: Story = {
 
 export const icon1: Story = {
   args: {
-    modalType: 'primary',
     header: 'Accept changes?',
     content: 'It cannot be reset for 30 days after the change.',
-    icon: (
-      <span role='img' aria-label='ok hand' style={{ fontSize: '32px' }}>
-        👌
-      </span>
-    ),
+    icon: <span role='img' aria-label='ok hand' style={{ fontSize: '32px' }}></span>,
+    icon_size: 'sm',
   },
 };
 
 export const icon2: Story = {
   args: {
-    modalType: 'icon_L',
-    header: 'Do you want to accept?',
-    content: 'It cannot be reset for 30 days after the change.',
+    header: 'Completed!',
     icon: (
       <span role='img' aria-label='party popper' style={{ fontSize: '48px' }}>
         🎉
       </span>
     ),
+    icon_size: 'lg',
   },
 };
 
 export const checkbox: Story = {
   args: {
-    modalType: 'primary',
     header: 'Do you want to accept?',
     content: 'It cannot be reset for 30 days after the change.',
     children: <Checkbox>Check it out.</Checkbox>,
@@ -104,7 +97,6 @@ export const checkbox: Story = {
 
 export const input: Story = {
   args: {
-    modalType: 'primary',
     header: 'Do you want to accept?',
     content: 'It cannot be reset for 30 days after the change.',
     children: (
