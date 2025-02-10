@@ -166,7 +166,7 @@ const SelectItemsStyles = (colorType: ColorType) => {
 const SelectContainerStyles = (width: number | string, isSelected: boolean, isOpen: boolean, colorType: ColorType) => {
   return css({
     position: 'relative',
-    width: `${width}px`,
+    width: typeof width === 'number' ? `${width}px` : width,
     minWidth: 280,
     [`> button.${prefixCls}-button`]: SelectStyles(isSelected, colorType),
 
