@@ -3,81 +3,57 @@
 import { css } from '@emotion/react';
 import { clsx } from '../../utils';
 import { PREFIX_CLS } from '../ConfigProvider/context';
-import { useEffect, useState } from 'react';
 
 type IconSize = 'sm' | 'lg';
 
 export interface ModalProps extends React.HTMLAttributes<HTMLDivElement> {
   isOpen: boolean;
-  icon?: React.ReactNode | undefined;
-  icon_size?: IconSize;
-  header: string | React.ReactNode;
-  footer: React.ReactNode[];
+  icon?: React.ReactNode;
+  iconSize?: IconSize;
+  header: React.ReactNode;
+  footer: React.ReactNode;
 }
 
 const prefixCls = `${PREFIX_CLS}-modal`;
 
-const Modal = ({
-  className,
-  isOpen,
-  icon,
-  icon_size,
-  header,
-  content,
-  children,
-  footer,
-  ...dialogProps
-}: ModalProps) => {
-  const [modalVisible, setModalVisible] = useState(isOpen);
-
-  useEffect(() => {
-    setModalVisible(isOpen);
-  }, [isOpen]);
-
+const Modal = ({ className, isOpen, icon, iconSize, header, children, footer, ...dialogProps }: ModalProps) => {
   const modalCls = clsx(
     {
       [`${prefixCls}`]: !!isOpen,
-      [`${prefixCls}-icon-${icon_size}`]: !!icon,
+      [`${prefixCls}-icon-${iconSize}`]: !!icon,
     },
     className,
   );
 
-  return (
-    <>
-      {modalVisible && (
-        <div
-          className={`${prefixCls}-backdrop`}
-          css={BackdropStyle}
-          onClick={(e) => {
-            e.stopPropagation();
-          }}>
+  if (!isOpen) return <></>;
+  else
+    return (
+      <>
+        <div className={`${prefixCls}-backdrop`} css={BackdropStyle}>
           <div className={modalCls} css={ModalStyle} {...dialogProps}>
-            {icon && icon_size === 'sm' && (
+            {icon && iconSize === 'sm' && (
               <div className={`${prefixCls}-container-with-icon`}>
                 <div className={`${prefixCls}-icon`}>{icon}</div>
                 <div className={`${prefixCls}-container`}>
                   <div className={`${prefixCls}-header`}>{header}</div>
-                  <div className={`${prefixCls}-content`}>{content}</div>
                   {children && <div className={`${prefixCls}-children`}>{children}</div>}
                   <div className={`${prefixCls}-footer`}>{footer}</div>
                 </div>
               </div>
             )}
 
-            {!(icon && icon_size === 'sm') && (
+            {!(icon && iconSize === 'sm') && (
               <div className={`${prefixCls}-container`}>
                 {icon && <div className={`${prefixCls}-icon`}>{icon}</div>}
                 <div className={`${prefixCls}-header`}>{header}</div>
-                <div className={`${prefixCls}-content`}>{content}</div>
                 {children && <div className={`${prefixCls}-children`}>{children}</div>}
                 <div className={`${prefixCls}-footer`}>{footer}</div>
               </div>
             )}
           </div>
         </div>
-      )}
-    </>
-  );
+      </>
+    );
 };
 
 export default Modal;
@@ -148,15 +124,6 @@ const ModalStyle = css({
     textAlign: 'center',
   },
 
-  [`.${prefixCls}-content`]: {
-    color: 'var(--primary-600)',
-    fontSize: 16,
-    fontWeight: '400',
-    wordWrap: 'break-word',
-    textAlign: 'center',
-    marginBottom: 10,
-  },
-
   [`.${prefixCls}-children`]: {
     marginBottom: 10,
   },
@@ -166,7 +133,6 @@ const ModalStyle = css({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 14,
   },
 
   [`.${prefixCls}-container-with-icon`]: {
@@ -187,7 +153,6 @@ const ModalStyle = css({
         justifyContent: 'center',
         alignItems: 'center',
         alignSelf: 'flex-end',
-        gap: 14,
       },
     },
   },

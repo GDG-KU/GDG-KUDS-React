@@ -1,3 +1,5 @@
+/** @jsxImportSource @emotion/react */
+
 import { Meta, StoryObj } from '@storybook/react';
 import Modal from './Modal';
 import { Button } from '../Button';
@@ -5,7 +7,7 @@ import { Checkbox } from '../Checkbox';
 import { Input } from '../Input';
 import { ConfigProvider } from '../ConfigProvider';
 import { useState } from 'react';
-import React from 'react';
+import { css } from '@emotion/react';
 
 const meta: Meta<typeof Modal> = {
   title: 'Modal',
@@ -19,7 +21,7 @@ const meta: Meta<typeof Modal> = {
     icon: {
       control: false,
     },
-    icon_size: {
+    iconSize: {
       control: false,
     },
     header: {
@@ -41,14 +43,16 @@ const meta: Meta<typeof Modal> = {
           <Modal
             {...args}
             isOpen={modalOpen}
-            footer={[
-              <Button colorType='red' size='md' onClick={() => setModalOpen(false)} key='Reject'>
-                Reject
-              </Button>,
-              <Button colorType='primary' size='md' onClick={() => setModalOpen(false)} key='Accept'>
-                Accept
-              </Button>,
-            ]}
+            footer={
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: '16px' }}>
+                <Button colorType='red' size='md' onClick={() => setModalOpen(false)} key='Reject'>
+                  Reject
+                </Button>
+                <Button colorType='primary' size='md' onClick={() => setModalOpen(false)} key='Accept'>
+                  Accept
+                </Button>
+              </div>
+            }
           />
         </div>
       </ConfigProvider>
@@ -59,19 +63,32 @@ const meta: Meta<typeof Modal> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const contentStyle = css({
+  color: 'var(--primary-600)',
+  fontSize: 16,
+  fontWeight: '400',
+  wordWrap: 'break-word',
+  textAlign: 'center',
+  marginBottom: 10,
+});
+
 export const primary: Story = {
   args: {
     header: 'Do you want to accept?',
-    content: 'It cannot be reset for 30 days after the change.',
+    children: <div css={contentStyle}>It cannot be reset for 30 days after the change.</div>,
   },
 };
 
 export const icon1: Story = {
   args: {
     header: 'Accept changes?',
-    content: 'It cannot be reset for 30 days after the change.',
-    icon: <span role='img' aria-label='ok hand' style={{ fontSize: '32px' }}></span>,
-    icon_size: 'sm',
+    children: <div css={contentStyle}>It cannot be reset for 30 days after the change.</div>,
+    icon: (
+      <span role='img' aria-label='ok hand' style={{ fontSize: '32px' }}>
+        👌
+      </span>
+    ),
+    iconSize: 'sm',
   },
 };
 
@@ -83,25 +100,31 @@ export const icon2: Story = {
         🎉
       </span>
     ),
-    icon_size: 'lg',
+    iconSize: 'lg',
   },
 };
 
 export const checkbox: Story = {
   args: {
     header: 'Do you want to accept?',
-    content: 'It cannot be reset for 30 days after the change.',
-    children: <Checkbox>Check it out.</Checkbox>,
+    children: (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <div css={contentStyle}>It cannot be reset for 30 days after the change.</div>
+        <Checkbox>Check it out.</Checkbox>
+      </div>
+    ),
   },
 };
 
 export const input: Story = {
   args: {
     header: 'Do you want to accept?',
-    content: 'It cannot be reset for 30 days after the change.',
     children: (
-      <div>
-        <Input placeholder='Password' />
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+        <div css={contentStyle}>It cannot be reset for 30 days after the change.</div>
+        <div>
+          <Input placeholder='Password' />
+        </div>
       </div>
     ),
   },
