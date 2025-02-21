@@ -2,78 +2,116 @@
 
 import { css } from '@emotion/react';
 import { clsx } from '../../utils/classNames';
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useRef, useEffect } from 'react';
 import { Colors } from '../../constants/colors';
 import { PREFIX_CLS } from '../ConfigProvider/context';
 import IconArrow from '../../icons/arrow';
 
 type ColorType = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 
-export interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+export interface SelectProps<T> extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   colorType?: ColorType;
   width: string | number;
-  options: { value: number; label: React.ReactNode }[];
+  options: { value: T; label: React.ReactNode }[];
   placeholder?: string;
-  onChange: React.ChangeEventHandler<HTMLSelectElement>;
+  disabled?: boolean;
+  selectValue: T;
+  onChange: (value: T) => void;
 }
 
 const prefixCls = `${PREFIX_CLS}-select`;
 
-const Select = forwardRef<HTMLButtonElement, SelectProps>((props, ref) => {
-  const { colorType, className, width = 280, ...selectProps } = props;
-  const { disabled, options, value, placeholder, onChange = () => {} } = selectProps;
+const Select = forwardRef<HTMLButtonElement, SelectProps<unknown>>(
+  <T,>(props: SelectProps<T>, ref: React.Ref<HTMLButtonElement>) => {
+    const {
+      colorType = 'primary',
+      className,
+      width = 280,
+      disabled,
+      options,
+      selectValue,
+      placeholder,
+      onChange = () => {},
+      ...selectProps
+    } = props;
 
-  const selectCls = clsx(
-    prefixCls,
-    {
-      [`${prefixCls}-${colorType}`]: !!colorType,
-      [`${prefixCls}-${disabled}`]: !!disabled,
-    },
-    className,
-  );
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(value || '');
-  const [currentColorType, setCurrentColorType] = useState<ColorType>(colorType || 'primary');
+    const selectCls = clsx(
+      prefixCls,
+      {
+        [`${prefixCls}-${colorType}`]: !!colorType,
+        [`${prefixCls}-disabled`]: !!disabled,
+      },
+      className,
+    );
 
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
-  };
+    const [isOpen, setIsOpen] = useState(false);
+    const [selectedValue, setSelectValue] = useState<T>(selectValue);
+    const selectRef = useRef<HTMLDivElement>(null);
 
-  const handleSelect = (value: number) => {
-    setSelectedValue(value);
-    setTimeout(() => setCurrentColorType('primary'), 200);
+    useEffect(() => {
+      setSelectValue(selectValue);
+    }, [selectValue]);
 
-    const event = {
-      target: { value } as unknown as HTMLSelectElement,
-    } as React.ChangeEvent<HTMLSelectElement>;
-    onChange(event);
-    setIsOpen(false);
-  };
+    const handleToggle = () => {
+      if (!disabled) {
+        setIsOpen((prev) => !prev);
+      }
+    };
 
-  const selectedOption = options.find((o) => o.value === selectedValue);
-  const isSelected = !!selectedValue;
+    const handleSelect = (value: T) => {
+      setSelectValue(value);
+      onChange(value);
+      setIsOpen(false);
+    };
 
-  return (
-    <div css={SelectContainerStyles(width, isSelected, isOpen, currentColorType)} className={selectCls}>
-      <button ref={ref} onClick={handleToggle} className={clsx(`${prefixCls}-button`)}>
-        <span className={clsx(`${prefixCls}-placeholder`)}>{selectedOption ? selectedOption.label : placeholder}</span>
-        <IconArrow className={clsx(`${prefixCls}-icon`)} />
-      </button>
-      <ul className={clsx(`${prefixCls}-selectbox`)}>
-        {options.map(({ value, label }) => (
-          <li
-            key={value}
-            onClick={() => handleSelect(value)}
-            className={clsx(`${prefixCls}-selectitem`, {
-              [`${prefixCls}-selected`]: value === selectedValue, // 선택된 아이템에 추가 클래스 적용
-            })}>
-            {label}
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-});
+    const selectedOption = options.find((o) => o.value === selectedValue);
+    const isSelected = !!selectedValue;
+
+    // 외부 클릭 감지하여 SelectBox 닫기
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+
+      if (isOpen) {
+        document.addEventListener('mousedown', handleClickOutside);
+      }
+
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }, [isOpen]);
+
+    return (
+      <div
+        ref={selectRef}
+        css={SelectContainerStyles(width, isSelected, isOpen, colorType)}
+        className={selectCls}
+        {...selectProps}>
+        <button ref={ref} onClick={handleToggle} className={clsx(`${prefixCls}-button`)}>
+          <span className={clsx(`${prefixCls}-placeholder`)}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
+          <IconArrow className={clsx(`${prefixCls}-icon`)} />
+        </button>
+        <ul className={clsx(`${prefixCls}-selectbox`)}>
+          {options.map(({ value, label }) => (
+            <li
+              key={String(value)}
+              onClick={() => handleSelect(value)}
+              className={clsx(`${prefixCls}-selectitem`, {
+                [`${prefixCls}-selected`]: value === selectedValue, // 선택된 아이템에 추가 클래스 적용
+              })}>
+              {label}
+            </li>
+          ))}
+        </ul>
+      </div>
+    );
+  },
+);
 
 export default Select;
 
@@ -92,7 +130,11 @@ const SelectStyles = (isSelected: boolean, colorType: ColorType) =>
     border: '1px solid',
     borderRadius: 8,
 
-    borderColor: isSelected ? Colors[colorType][500] : Colors.primary[500],
+    borderColor: isSelected
+      ? colorType === 'primary'
+        ? Colors.primary[800]
+        : Colors[colorType][500]
+      : Colors.primary[500],
     backgroundColor: Colors.primary[100],
 
     [`> .${prefixCls}-placeholder`]: {
@@ -154,18 +196,19 @@ const SelectItemsStyles = (colorType: ColorType) => {
     listStyle: 'none',
 
     '&:hover': {
-      backgroundColor: colorType === 'primary' ? Colors.primary[200] : Colors[colorType][100],
+      backgroundColor: colorType === 'primary' ? Colors.primary[200] : Colors[colorType][100], //디자인팀 문의 후 수정 예정
       color: Colors.primary[800],
     },
     [`&.${prefixCls}-selected`]: {
       color: Colors.primary[800],
-      backgroundColor: Colors.primary[200],
+      backgroundColor: colorType === 'primary' ? Colors.primary[200] : Colors[colorType][100],
     },
   });
 };
 const SelectContainerStyles = (width: number | string, isSelected: boolean, isOpen: boolean, colorType: ColorType) => {
   return css({
     position: 'relative',
+    display: 'inline-block',
     width: typeof width === 'number' ? `${width}px` : width,
     minWidth: 280,
     [`> button.${prefixCls}-button`]: SelectStyles(isSelected, colorType),
