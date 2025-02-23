@@ -27,8 +27,8 @@ const meta: Meta<typeof Modal> = {
     header: {
       control: 'text',
     },
-    content: {
-      action: 'text',
+    children: {
+      control: 'text',
     },
     footer: {
       control: false,
@@ -123,7 +123,7 @@ export const input: Story = {
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
         <div css={contentStyle}>It cannot be reset for 30 days after the change.</div>
         <div>
-          <Input placeholder='Password' />
+          <Input placeholder='Password' type='password' />
         </div>
       </div>
     ),
