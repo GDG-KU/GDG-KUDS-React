@@ -12,14 +12,15 @@ type ColorType = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   colorType: ColorType;
   total: number;
-  currentPage: number;
-  onChange: (page: number) => void;
+  pageSize: number; //한 페이지에 표기될 페이지 크기
+  defaultPage?: number;
+  onChange?: (page: number) => void;
 }
 
 const prefixCls = `${PREFIX_CLS}-pagination`;
 
 const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
-  const { colorType, className, total, currentPage, onChange = () => {}, ...paginationProps } = props;
+  const { colorType, className, total, pageSize = 7, defaultPage, onChange = () => {}, ...paginationProps } = props;
   const PageCls = clsx(
     prefixCls,
     {
@@ -28,11 +29,12 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     className,
   );
 
-  const [localPage, setLocalPage] = useState(currentPage);
+  const totalPages = Math.ceil(total / pageSize); //한번에 표시될 수 있는 Page 개수
+  const [localPage, setLocalPage] = useState(defaultPage ?? 1);
 
   const handlePageClick = (page: number) => {
     setLocalPage(page);
-    onChange(page);
+    onChange?.(page);
   };
 
   const handlePrev = () => {
@@ -42,27 +44,44 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
   };
 
   const handleNext = () => {
-    if (localPage < total) {
+    if (localPage < totalPages) {
       handlePageClick(localPage + 1);
     }
   };
 
   const isPrevDisabled = localPage === 1 || total === 1;
   const isNextDisabled = localPage === total || total === 1;
+
+  const getPaginationItems = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    } else if (localPage < 5) {
+      return [1, 2, 3, 4, 5, '...', totalPages];
+    } else if (localPage >= totalPages - 4) {
+      return [1, '...', totalPages - 5, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      {
+        /* 로직 수정 예정 */
+      }
+    } else return [1, '...', localPage - 1, localPage, localPage + 1, '...', totalPages];
+  };
   return (
     <div ref={ref} css={PaginationStyles(colorType)} className={PageCls} {...paginationProps}>
       <button onClick={handlePrev} className={`${prefixCls}-prev`} disabled={isPrevDisabled}>
         <IconMove />
       </button>
 
-      {[...Array(Math.min(total, 7))].map((_, i) => {
-        const pageNum = i + 1;
+      {getPaginationItems().map((item, i) => {
+        const pageNum = i;
         return (
           <button
             key={pageNum}
-            onClick={() => handlePageClick(pageNum)}
-            className={clsx(`${prefixCls}-number`, { [`${prefixCls}-selected`]: pageNum === localPage })}>
-            {pageNum}
+            onClick={() => typeof item === 'number' && handlePageClick(item)}
+            className={clsx(`${prefixCls}-number`, {
+              [`${prefixCls}-selected`]: item === localPage,
+              [`${prefixCls}-dots`]: item === '...',
+            })}
+            disabled={item === '...'}>
+            {item}
           </button>
         );
       })}
