@@ -11,16 +11,16 @@ type ColorType = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 
 export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   colorType: ColorType;
-  total: number;
-  pageSize: number; //한 페이지에 표기될 페이지 크기
-  defaultPage?: number;
+  itemTotal: number; //item 총 개수
+  pageSize: number; //페이지 크기
+  defaultPage?: number; //기본 설정 페이지
   onChange?: (page: number) => void;
 }
 
 const prefixCls = `${PREFIX_CLS}-pagination`;
 
 const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
-  const { colorType, className, total, pageSize = 7, defaultPage, onChange = () => {}, ...paginationProps } = props;
+  const { colorType, className, itemTotal, pageSize = 7, defaultPage, onChange = () => {}, ...paginationProps } = props;
   const PageCls = clsx(
     prefixCls,
     {
@@ -29,7 +29,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     className,
   );
 
-  const totalPages = Math.ceil(total / pageSize); //한번에 표시될 수 있는 Page 개수
+  const totalPages = Math.ceil(itemTotal / pageSize); //한번에 표시될 수 있는 Page 개수
   const [localPage, setLocalPage] = useState(defaultPage ?? 1);
 
   const handlePageClick = (page: number) => {
@@ -49,8 +49,8 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     }
   };
 
-  const isPrevDisabled = localPage === 1 || total === 1;
-  const isNextDisabled = localPage === total || total === 1;
+  const isPrevDisabled = localPage === 1 || totalPages === 1;
+  const isNextDisabled = localPage === totalPages || totalPages === 1;
 
   const getPaginationItems = () => {
     if (totalPages <= 7) {
@@ -58,7 +58,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     } else if (localPage < 5) {
       return [1, 2, 3, 4, 5, '...', totalPages];
     } else if (localPage >= totalPages - 4) {
-      return [1, '...', totalPages - 5, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
       {
         /* 로직 수정 예정 */
       }

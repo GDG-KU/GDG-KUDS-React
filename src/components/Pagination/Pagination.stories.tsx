@@ -7,7 +7,7 @@ const meta: Meta<typeof Pagination> = {
   title: 'Pagination',
   tags: ['autodocs'],
   argTypes: {
-    total: { control: 'number' },
+    itemTotal: { control: 'number' },
     pageSize: { control: 'number' },
     colorType: {
       control: {
@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const paginationSimple: Story = {
   args: {
-    total: 7,
+    itemTotal: 7,
     pageSize: 7,
     colorType: 'red',
   },
@@ -41,7 +41,7 @@ export const paginationSimple: Story = {
 
 export const paginationComplex: Story = {
   args: {
-    total: 10,
+    itemTotal: 10,
     pageSize: 7,
     colorType: 'green',
   },
