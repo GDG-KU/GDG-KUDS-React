@@ -5,17 +5,17 @@ import { clsx } from '../../utils';
 import { PREFIX_CLS } from '../ConfigProvider/context';
 import { IcBang, IcBell, IcCheck, IcInfo, IcX } from '../../icons';
 
-type NotificationType = 'info' | 'success' | 'warning' | 'error';
+type NotificationType = 'default' | 'info' | 'success' | 'warning' | 'error';
 type Color = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 
-const IcCircle = (notificationType: NotificationType) => {
+const IcCircle = (notificationType: Exclude<NotificationType, 'default'>) => {
   const [icon, color] = defaultIcon[notificationType];
   return (
-    <div css={{ width: '20px', height: '20px', padding: '2px' }}>
+    <div css={{ width: 20, height: 20, padding: 2 }}>
       <div
         css={{
-          width: '20px',
-          height: '20px',
+          width: 20,
+          height: 20,
 
           background: `var(--${color}-500)`,
           borderRadius: 100,
@@ -30,7 +30,7 @@ const IcCircle = (notificationType: NotificationType) => {
   );
 };
 
-const defaultIcon: Record<NotificationType, [React.ReactNode, string]> = {
+const defaultIcon: Record<Exclude<NotificationType, 'default'>, [React.ReactNode, string]> = {
   info: [<IcInfo />, 'blue'],
   success: [<IcCheck fill='white' stroke='none' />, 'green'],
   warning: [<IcBang />, 'yellow'],
@@ -41,7 +41,7 @@ export interface NotificationProps extends React.HTMLAttributes<HTMLDivElement> 
   // autoDismiss: boolean;
   notificationId: string;
   color?: Color;
-  notificationType?: NotificationType | undefined;
+  notificationType?: NotificationType;
   icon?: React.ReactNode;
   notificationTitle: React.ReactNode;
 }
@@ -57,7 +57,7 @@ const Notification = ({
   className,
   // autoDismiss = true,
   notificationId,
-  notificationType,
+  notificationType = 'default',
   color = 'primary',
   icon,
   notificationTitle,
@@ -71,7 +71,13 @@ const Notification = ({
       <div className={`${prefixCls}-wrapper`}>
         <div className={`${prefixCls}-header`}>
           <div className={`${prefixCls}-icon`}>
-            {icon ? icon : notificationType ? IcCircle(notificationType) : <IcBell color={bellColor(color)} />}
+            {icon ? (
+              icon
+            ) : notificationType != 'default' ? (
+              IcCircle(notificationType)
+            ) : (
+              <IcBell color={bellColor(color)} />
+            )}
           </div>
           <div className={clsx([`${prefixCls}-title`], [`${color}-title`])}>{notificationTitle}</div>
           <div className={`${prefixCls}-close`}>
@@ -87,28 +93,28 @@ const Notification = ({
 export default Notification;
 
 const baseStyle = css({
-  minWidth: '320px',
-  maxWidth: '420px',
-  minHeight: '98px',
+  minWidth: 320,
+  maxWidth: 420,
+  minHeight: 98,
 
   backgroundColor: `var(--primary-100)`,
 
   border: 'none',
-  borderRadius: '8px',
+  borderRadius: 8,
 
   boxShadow: '0px 0px 20px rgba(0, 0, 0, 0.15)',
 
   [`.${prefixCls}-wrapper`]: {
     display: 'flex',
     flexDirection: 'column',
-    gap: '10px',
-    padding: '18px',
+    gap: 10,
+    padding: 18,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
 
     [`.${prefixCls}-header`]: {
       display: 'flex',
-      gap: '16px',
+      gap: 16,
       alignItems: 'center',
       width: '100%',
 
@@ -117,8 +123,8 @@ const baseStyle = css({
         justifyContent: 'center',
         alignItems: 'center',
 
-        width: '24px',
-        height: '24px',
+        width: 24,
+        height: 24,
       },
 
       [`.${prefixCls}-title`]: {
@@ -127,7 +133,7 @@ const baseStyle = css({
         alignItems: 'center',
         flex: 1,
 
-        height: '28px',
+        height: 28,
 
         fontSize: 20,
         fontWeight: '700',
@@ -142,7 +148,8 @@ const baseStyle = css({
     },
 
     [`.${prefixCls}-body`]: {
-      display: 'inline',
+      display: 'block',
+      marginLeft: 40,
       color: 'var(--primary-600)',
       fontSize: 16,
       fontWeight: '500',
@@ -168,7 +175,7 @@ const primaryTitleStyle = css({
 });
 
 const notificationTypeStyles = ['info', 'success', 'warning', 'error'].map((notificationType) => {
-  const [, color] = defaultIcon[notificationType as NotificationType];
+  const [, color] = defaultIcon[notificationType as Exclude<NotificationType, 'default'>];
   return css({
     [`&.${prefixCls}-${notificationType}`]: {
       backgroundColor: `var(--${color}-100)`,

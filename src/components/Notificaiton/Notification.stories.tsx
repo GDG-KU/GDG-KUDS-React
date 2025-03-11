@@ -8,7 +8,7 @@ const meta: Meta<typeof Notification> = {
   tags: ['autodocs'],
   args: {
     notificationId: '1',
-    notificationType: undefined,
+    notificationType: 'default',
     color: 'primary',
     notificationTitle: 'Notification Title',
     children: `Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text`,
@@ -16,7 +16,7 @@ const meta: Meta<typeof Notification> = {
   argTypes: {
     notificationType: {
       control: 'radio',
-      options: [undefined, 'info', 'success', 'warning', 'error'],
+      options: ['default', 'info', 'success', 'warning', 'error'],
       description: 'Defines the type of the notification.',
     },
     color: {
