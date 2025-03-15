@@ -12,7 +12,7 @@ type ColorType = 'primary' | 'blue' | 'green' | 'yellow' | 'red';
 export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLDivElement>, 'onChange'> {
   colorType: ColorType;
   itemTotal: number; //item 총 개수
-  pageSize: number; //페이지 크기
+  pageSize?: number; //페이지 크기
   defaultPage?: number; //기본 설정 페이지
   onChange?: (page: number) => void;
 }
@@ -20,7 +20,15 @@ export interface PaginationProps extends Omit<React.HTMLAttributes<HTMLDivElemen
 const prefixCls = `${PREFIX_CLS}-pagination`;
 
 const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
-  const { colorType, className, itemTotal, pageSize = 7, defaultPage, onChange = () => {}, ...paginationProps } = props;
+  const {
+    colorType,
+    className,
+    itemTotal,
+    pageSize = 10,
+    defaultPage,
+    onChange = () => {},
+    ...paginationProps
+  } = props;
   const PageCls = clsx(
     prefixCls,
     {
@@ -49,44 +57,43 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     }
   };
 
-  const isPrevDisabled = localPage === 1 || totalPages === 1;
-  const isNextDisabled = localPage === totalPages || totalPages === 1;
+  const isDisabled = localPage === 1 || localPage === totalPages || totalPages === 1;
 
   const getPaginationItems = () => {
     if (totalPages <= 7) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
-    } else if (localPage < 5) {
-      return [1, 2, 3, 4, 5, '...', totalPages];
-    } else if (localPage >= totalPages - 4) {
-      return [1, '...', totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
-      {
-        /* 로직 수정 예정 */
-      }
-    } else return [1, '...', localPage - 1, localPage, localPage + 1, '...', totalPages];
+    }
+    if (localPage < 5) {
+      return [1, 2, 3, 4, 5, null, totalPages];
+    }
+    if (localPage >= totalPages - 4) {
+      return [1, null, totalPages - 5, totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+    }
+    return [1, null, localPage - 1, localPage, localPage + 1, null, totalPages];
   };
+
   return (
     <div ref={ref} css={PaginationStyles(colorType)} className={PageCls} {...paginationProps}>
-      <button onClick={handlePrev} className={`${prefixCls}-prev`} disabled={isPrevDisabled}>
+      <button onClick={handlePrev} className={`${prefixCls}-prev`} disabled={isDisabled}>
         <IconMove />
       </button>
 
-      {getPaginationItems().map((item, i) => {
-        const pageNum = i;
+      {getPaginationItems().map((item, pageNum) => {
         return (
           <button
             key={pageNum}
             onClick={() => typeof item === 'number' && handlePageClick(item)}
             className={clsx(`${prefixCls}-number`, {
               [`${prefixCls}-selected`]: item === localPage,
-              [`${prefixCls}-dots`]: item === '...',
+              [`${prefixCls}-dots`]: item === null,
             })}
-            disabled={item === '...'}>
-            {item}
+            disabled={!item}>
+            {!item ? '...' : item}
           </button>
         );
       })}
 
-      <button onClick={handleNext} className={`${prefixCls}-next`} disabled={isNextDisabled}>
+      <button onClick={handleNext} className={`${prefixCls}-next`} disabled={isDisabled}>
         <IconMove transform='rotate(180)' />
       </button>
     </div>
@@ -112,7 +119,7 @@ const ArrowStyles = css({
 
 const DefaultNumStyles = css({
   all: 'unset',
-  display: 'flex',
+  display: 'inline-flex',
   width: 12,
   height: 12,
   padding: 10,
@@ -141,8 +148,9 @@ const DefaultNumStyles = css({
 const SelectedNumStyles = (colorType: ColorType) =>
   css({
     all: 'unset',
-    display: 'flex',
+    display: 'inline-flex',
     width: 12,
+    minWidth: 12,
     height: 12,
     padding: 10,
 
@@ -173,7 +181,7 @@ const SelectedNumStyles = (colorType: ColorType) =>
 
 const PaginationStyles = (colorType: ColorType) =>
   css({
-    display: 'inline-flex',
+    display: 'flex',
     alignItems: 'center',
     gap: 24,
 

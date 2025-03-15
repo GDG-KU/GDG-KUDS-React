@@ -33,7 +33,7 @@ type Story = StoryObj<typeof meta>;
 
 export const paginationSimple: Story = {
   args: {
-    itemTotal: 7,
+    itemTotal: 49,
     pageSize: 7,
     colorType: 'red',
   },
@@ -41,7 +41,7 @@ export const paginationSimple: Story = {
 
 export const paginationComplex: Story = {
   args: {
-    itemTotal: 10,
+    itemTotal: 90,
     pageSize: 7,
     colorType: 'green',
   },
