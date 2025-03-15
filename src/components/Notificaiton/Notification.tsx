@@ -38,12 +38,12 @@ const defaultIcon: Record<Exclude<NotificationType, 'default'>, [React.ReactNode
 };
 
 export interface NotificationProps extends React.HTMLAttributes<HTMLDivElement> {
-  // autoDismiss: boolean;
-  notificationId: string;
+  notificationId: number;
   color?: Color;
   notificationType?: NotificationType;
   icon?: React.ReactNode;
   notificationTitle: React.ReactNode;
+  onClose: () => void;
 }
 
 const prefixCls = `${PREFIX_CLS}-notification`;
@@ -55,32 +55,33 @@ const bellColor = (color: Color) => {
 
 const Notification = ({
   className,
-  // autoDismiss = true,
-  notificationId,
   notificationType = 'default',
   color = 'primary',
   icon,
   notificationTitle,
   children,
+  onClose,
   ...notificationProps
 }: NotificationProps) => {
   const notificationCls = clsx([`${prefixCls}-${notificationType}`], [`${prefixCls}-${color}`], className);
 
   return (
-    <div className={`${notificationCls}`} key={notificationId} css={NotificationStyle} {...notificationProps}>
+    <div className={`${notificationCls}`} css={NotificationStyle} {...notificationProps}>
       <div className={`${prefixCls}-wrapper`}>
         <div className={`${prefixCls}-header`}>
-          <div className={`${prefixCls}-icon`}>
-            {icon ? (
-              icon
-            ) : notificationType != 'default' ? (
-              IcCircle(notificationType)
-            ) : (
-              <IcBell color={bellColor(color)} />
-            )}
+          <div className={`${prefixCls}-header-left`}>
+            <div className={`${prefixCls}-icon`}>
+              {icon ? (
+                icon
+              ) : notificationType != 'default' ? (
+                IcCircle(notificationType)
+              ) : (
+                <IcBell color={bellColor(color)} />
+              )}
+            </div>
+            <div className={clsx([`${prefixCls}-title`], [`${color}-title`])}>{notificationTitle}</div>
           </div>
-          <div className={clsx([`${prefixCls}-title`], [`${color}-title`])}>{notificationTitle}</div>
-          <div className={`${prefixCls}-close`}>
+          <div className={`${prefixCls}-close`} onClick={onClose}>
             <IcX stroke={`var(--primary-600)`} />
           </div>
         </div>
@@ -96,6 +97,7 @@ const baseStyle = css({
   minWidth: 320,
   maxWidth: 420,
   minHeight: 98,
+  width: 'fit-content',
 
   backgroundColor: `var(--primary-100)`,
 
@@ -114,30 +116,36 @@ const baseStyle = css({
 
     [`.${prefixCls}-header`]: {
       display: 'flex',
-      gap: 16,
+      justifyContent: 'space-between',
       alignItems: 'center',
       width: '100%',
 
-      [`.${prefixCls}-icon`]: {
+      [`.${prefixCls}-header-left`]: {
         display: 'flex',
-        justifyContent: 'center',
+        gap: 16,
         alignItems: 'center',
 
-        width: 24,
-        height: 24,
-      },
+        [`.${prefixCls}-icon`]: {
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
 
-      [`.${prefixCls}-title`]: {
-        display: 'flex',
-        justifyContent: 'start',
-        alignItems: 'center',
-        flex: 1,
+          width: 24,
+          height: 24,
+        },
 
-        height: 28,
+        [`.${prefixCls}-title`]: {
+          display: 'flex',
+          justifyContent: 'start',
+          alignItems: 'center',
+          // flex: 1,
 
-        fontSize: 20,
-        fontWeight: '700',
-        lineHeight: '28px',
+          height: 28,
+
+          fontSize: 20,
+          fontWeight: '700',
+          lineHeight: '28px',
+        },
       },
 
       [`.${prefixCls}-close`]: {

@@ -7,7 +7,6 @@ const meta: Meta<typeof Notification> = {
   component: Notification,
   tags: ['autodocs'],
   args: {
-    notificationId: '1',
     notificationType: 'default',
     color: 'primary',
     notificationTitle: 'Notification Title',
