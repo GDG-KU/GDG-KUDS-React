@@ -57,7 +57,9 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
     }
   };
 
-  const isDisabled = localPage === 1 || localPage === totalPages || totalPages === 1;
+  const isSinglePage = totalPages === 1;
+  const isPrevDisabled = isSinglePage || localPage === 1;
+  const isNextDisabled = isSinglePage || localPage === totalPages;
 
   const getPaginationItems = () => {
     if (totalPages <= 7) {
@@ -74,7 +76,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
 
   return (
     <div ref={ref} css={PaginationStyles(colorType)} className={PageCls} {...paginationProps}>
-      <button onClick={handlePrev} className={`${prefixCls}-prev`} disabled={isDisabled}>
+      <button onClick={handlePrev} className={`${prefixCls}-prev`} disabled={isPrevDisabled}>
         <IconMove />
       </button>
 
@@ -93,7 +95,7 @@ const Pagination = forwardRef<HTMLDivElement, PaginationProps>((props, ref) => {
         );
       })}
 
-      <button onClick={handleNext} className={`${prefixCls}-next`} disabled={isDisabled}>
+      <button onClick={handleNext} className={`${prefixCls}-next`} disabled={isNextDisabled}>
         <IconMove transform='rotate(180)' />
       </button>
     </div>
